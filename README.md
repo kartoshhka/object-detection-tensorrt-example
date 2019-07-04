@@ -18,13 +18,13 @@ ssh -X root@123.123.123.1
 ```
 ./setup_camera.sh
 ```
-### 3. Настройте окружение
+### 4. Настройте окружение
 ```
 ./setup_environment.sh
 ```
 
 
-### 2. Запустите приложение
+### 5. Запустите приложение
 
 ```
 python SSD_Model/detect_objects_webcam.py 
