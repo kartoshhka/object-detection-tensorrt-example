@@ -3,7 +3,7 @@ apt update && apt full-upgrade -y
 
 # Настраиваем запуск графических приложений через SSH
 if grep 'ForwardX11' ~/.ssh/config 
-	then echo "X11 Forwardinf done"
+	then echo "X11 Forwarding done"
 	else echo -e "X11Forwarding yes\nX11DisplayOffset 10\nX11UseLocalhost no" >> /etc/ssh/sshd_config
 fi
 service sshd restart
