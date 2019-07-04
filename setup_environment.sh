@@ -12,15 +12,15 @@ DISPLAY=`echo $DISPLAY | sed 's/^[^:]*\(.*\)/172.17.0.1\1/'`
 xhost +local:docker
 XSOCK=/tmp/.X11-unix
 
-# Скачиваем датасет VOC для калибровки INT8 (раскомментируйте, если хотите использовать INT8)
-#DATA_DIR=VOCdevkit
-#if [ -d "$DATA_DIR" ]; then
-#    echo "$DATA_DIR уже загружен"
-#else
-#    echo "Загружаем набор данных VOC"
-#    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
-#    tar -xf VOCtest_06-Nov-2007.tar
-#fi
+# Скачиваем датасет VOC для калибровки INT8
+DATA_DIR=VOCdevkit
+if [ -d "$DATA_DIR" ]; then
+    echo "$DATA_DIR уже загружен"
+else
+    echo "Загружаем набор данных VOC"
+    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+    tar -xf VOCtest_06-Nov-2007.tar
+fi
 
 # Собираем Dockerfile
 if [ ! -z $(docker images -q object_detection_webcam:latest) ]; then
