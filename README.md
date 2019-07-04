@@ -25,7 +25,6 @@ ssh -X root@123.123.123.1
 ```
 ### 5. Откройте новое окно и настройте окружение:
 ```
-chmod u+x ./setup_environment.sh
 ./setup_environment.sh
 ```
 ### 6. Запустите приложение:
