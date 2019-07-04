@@ -1,28 +1,36 @@
-# So that docker can see the webcam
-echo "Setting envivonment variables for the webcam" 
+# Настраиваем переменные окружения, чтобы Docker видел веб-камеру и транслировал поток
+echo "Настраиваем переменные среды"
+XAUTH=/tmp/.docker.xauth
+xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | sudo xauth -f $XAUTH nmerge -
+sudo chmod 777 $XAUTH
+X11PORT=`echo $DISPLAY | sed 's/^[^:]*:\([^\.]\+\).*/\1/'`
+TCPPORT=`expr 6000 + $X11PORT`
+sudo ufw allow from 172.17.0.0/16 to any port $TCPPORT proto tcp
+DISPLAY=`echo $DISPLAY | sed 's/^[^:]*\(.*\)/172.17.0.1\1/'`
+
+
 xhost +local:docker
 XSOCK=/tmp/.X11-unix
-XAUTH=/tmp/.docker.xauth
-xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 
-# Download the VOC dataset for INT8 Calibration 
-DATA_DIR=VOCdevkit
+# Скачиваем датасет VOC для калибровки INT8 (раскомментируйте, если хотите использовать INT8)
+'''DATA_DIR=VOCdevkit
 if [ -d "$DATA_DIR" ]; then
-	echo "$DATA_DIR has already been downloaded"
+    echo "$DATA_DIR has already been downloaded"
 else
-	echo "Downloading VOC dataset"
-	wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
-	tar -xf VOCtest_06-Nov-2007.tar
+    echo "Загружаем набор данных VOC"
+    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+    tar -xf VOCtest_06-Nov-2007.tar
+fi'''
+
+# Собираем Dockerfile
+if [ ! -z $(docker images -q object_detection_webcam:latest) ]; then
+    echo "Dockerfile уже собран"
+else
+    echo "Собираем docker-образ"
+    docker build -f dockerfiles/Dockerfile --tag=object_detection_webcam .
 fi
 
-# Build the dockerfile for the engironment 
-if [ ! -z $(docker images -q object_detection_webcam:latest) ]; then 
-	echo "Dockerfile has already been built"
-else
-	echo "Building docker image" 
-	docker build -f dockerfiles/Dockerfile --tag=object_detection_webcam .
-fi
+# Запускаем контейнер
+echo "Запускаем контейнер"
+docker run --runtime=nvidia -it -v `pwd`:/mnt --device=/dev/video0 -e DISPLAY=$DISPLAY -v $XSOCK:$XSOCK -v $XAUTH:$XAUTH -e XAUTHORITY=$XAUTH object_detection_webcam
 
-# Start the docker container
-echo "Starting docker container" 
-docker run --runtime=nvidia -it -v `pwd`:/mnt --device=/dev/video0 -e DISPLAY=$DISPLAY -v $XSOCK:$XSOCK -v $XAUTH:$XAUTH -e XAUTHORITY=$XAUTH object_detection_webcam 
