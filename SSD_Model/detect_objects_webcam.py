@@ -158,33 +158,36 @@ def main():
 
     print("TRT ENGINE PATH", args.trt_engine_path)
 
-    if args.camera == True:
-        print('Running webcam:', args.camera)
-        # Define the video stream
-        cap = cv2.VideoCapture(0)  # Change only if you have more than one webcams
+    '''if args.camera == True:
+        print('Running webcam:', args.camera)'''
+    # Define the video stream
+    cap = cv2.VideoCapture('http://cam10.zentrale.sip-scootershop.de:10012/axis-cgi/mjpg/video.cgi?resolution=1024x768')
 
         # Loop for running inference on frames from the webcam
-        while True:
-            # Read frame from camera (and expand its dimensions to fit)
-            ret, image_np = cap.read()
+    while True:
+      # Read frame from camera (and expand its dimensions to fit)
+      ret, image_np = cap.read()
+      if not ret:
+        print('Error opening videostream')
+        break
+      else:
+        # Actually run inference
+        detection_out, keep_count_out = trt_inference_wrapper.infer_webcam(image_np)
 
-            # Actually run inference
-            detection_out, keep_count_out = trt_inference_wrapper.infer_webcam(image_np)
+        # Overlay the bounding boxes on the image
+        # let analyze_prediction() draw them based on model output
+        img_pil = Image.fromarray(image_np)
+        prediction_fields = len(TRT_PREDICTION_LAYOUT)
+        for det in range(int(keep_count_out[0])):
+          analyze_prediction(detection_out, det * prediction_fields, img_pil)
+        final_img = np.asarray(img_pil)
 
-            # Overlay the bounding boxes on the image
-            # let analyze_prediction() draw them based on model output
-            img_pil = Image.fromarray(image_np)
-            prediction_fields = len(TRT_PREDICTION_LAYOUT)
-            for det in range(int(keep_count_out[0])):
-                analyze_prediction(detection_out, det * prediction_fields, img_pil)
-            final_img = np.asarray(img_pil)
+        # Display output
+        cv2.imshow('object detection', final_img)
 
-            # Display output
-            cv2.imshow('object detection', final_img)
-
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                cv2.destroyAllWindows()
-                break
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+          cv2.destroyAllWindows()
+          break
 
 if __name__ == '__main__':
     main()
