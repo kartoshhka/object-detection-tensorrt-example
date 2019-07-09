@@ -1,10 +1,3 @@
-# Настраиваем запуск графических приложений через SSH
-if grep 'X11Forwarding' /etc/ssh/sshd_config
-	then echo "X11 Forwarding done"
-	else echo -e "X11Forwarding yes\nX11DisplayOffset 10\nX11UseLocalhost no" >> /etc/ssh/sshd_config
-    service sshd restart
-fi
-
 # Настраиваем переменные окружения, чтобы Docker видел веб-камеру и транслировал поток
 echo "Настраиваем переменные среды"
 XAUTH=/tmp/.docker.xauth
