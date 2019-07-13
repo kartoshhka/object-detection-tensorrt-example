@@ -104,7 +104,7 @@ def parse_commandline_arguments():
         help='sample workspace directory')
     parser.add_argument('-fc', '--flatten_concat',
         help='path of built FlattenConcat plugin')
-    parser.add_argument('-d', '--calib_dataset', default='../VOCdevkit/VOC2007/JPEGImages',
+    parser.add_argument('-d', '--calib_dataset', default='VOCdevkit/VOC2007/JPEGImages',
         help='path to the calibration dataset')
     parser.add_argument('-c', '--camera', default=True,
         help='if True, will run webcam application')
@@ -143,11 +143,17 @@ def main():
     # Parse command line arguments
     args = parse_commandline_arguments()
 
+    # Check the calibrarion dataset exists
+    if not os.path.exists(args.calib_dataset):
+        raise IOException('Calibrarion dataset does not exist: %s' % filepath)
+
     # Fetch .uff model path, convert from .pb
     # if needed, using prepare_ssd_model
     ssd_model_uff_path = PATHS.get_model_uff_path(MODEL_NAME)
     if not os.path.exists(ssd_model_uff_path):
         model_utils.prepare_ssd_model(MODEL_NAME)
+
+    print("TRT ENGINE PATH %s" % args.trt_engine_path)
 
     # Set up all TensorRT data structures needed for inference
     trt_inference_wrapper = inference_utils.TRTInference(
@@ -155,8 +161,6 @@ def main():
         trt_engine_datatype=args.trt_engine_datatype,
         calib_dataset = args.calib_dataset,
         batch_size=args.max_batch_size)
-
-    print("TRT ENGINE PATH", args.trt_engine_path)
 
     '''if args.camera == True:
         print('Running webcam:', args.camera)'''
