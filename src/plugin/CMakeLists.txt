@@ -80,7 +80,7 @@ target_link_libraries(${SHARED_TARGET}
     nvinfer
 )
 
-add_dependencies(${SHARED_TARGET} detectrt_tensorrt)
+add_dependencies(${SHARED_TARGET} detectrt_tensorrt detectrt_python)
 
 #########################################################################################
 

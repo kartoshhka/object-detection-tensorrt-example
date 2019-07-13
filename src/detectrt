@@ -1,0 +1,2 @@
+#!/bin/sh
+LD_LIBRARY_PATH=./TensorRT-5.1.5.0/lib bin/wrapper python3 ./detectrt.py

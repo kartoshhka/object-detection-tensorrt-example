@@ -145,7 +145,7 @@ def main():
 
     # Check the calibrarion dataset exists
     if not os.path.exists(args.calib_dataset):
-        raise IOException('Calibrarion dataset does not exist: %s' % filepath)
+        raise IOError('Calibrarion dataset does not exist: %s' % args.calib_dataset)
 
     # Fetch .uff model path, convert from .pb
     # if needed, using prepare_ssd_model
