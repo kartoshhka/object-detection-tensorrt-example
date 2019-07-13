@@ -3,6 +3,8 @@ import ctypes
 import time
 import sys
 import argparse
+import wget
+import tarfile
 
 import cv2
 import numpy as np
@@ -17,6 +19,11 @@ from utils.paths import PATHS # Path management
 
 import pycuda.driver as cuda
 import pycuda.autoinit
+
+# Default calibration dataset
+VOC_DEVKIT = 'VOCdevkit/VOC2007/JPEGImages'
+VOC_DEVKIT_URL = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/'
+VOC_DEVKIT_PACK = 'VOCtest_06-Nov-2007.tar'
 
 # COCO label list
 COCO_LABELS = coco_utils.COCO_CLASSES_LIST
@@ -104,7 +111,7 @@ def parse_commandline_arguments():
         help='sample workspace directory')
     parser.add_argument('-fc', '--flatten_concat',
         help='path of built FlattenConcat plugin')
-    parser.add_argument('-d', '--calib_dataset', default='VOCdevkit/VOC2007/JPEGImages',
+    parser.add_argument('-d', '--calib_dataset', default=VOC_DEVKIT,
         help='path to the calibration dataset')
     parser.add_argument('-c', '--camera', default=True,
         help='if True, will run webcam application')
@@ -144,6 +151,13 @@ def main():
     args = parse_commandline_arguments()
 
     # Check the calibrarion dataset exists
+    if (args.calib_dataset == VOC_DEVKIT):
+        if not os.path.exists(args.calib_dataset):
+            print ('Downloading calibration dataset %s' % args.calib_dataset)
+            wget.download(VOC_DEVKIT_URL + VOC_DEVKIT_PACK)
+            tar = tarfile.open(VOC_DEVKIT_PACK)
+            tar.extractall()
+
     if not os.path.exists(args.calib_dataset):
         raise IOError('Calibrarion dataset does not exist: %s' % args.calib_dataset)
 

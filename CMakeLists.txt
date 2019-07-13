@@ -30,6 +30,8 @@ add_custom_command(
 	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/bin/wrapper"
 		pip3 install wheel opencv-python numpy Pillow pycuda requests tensorflow==1.12.0
 	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/bin/wrapper"
+		pip3 install wget
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/bin/wrapper"
 		pip3 install "${CMAKE_CURRENT_BINARY_DIR}/TensorRT-5.1.5.0/python/tensorrt-5.1.5.0-cp35-none-linux_x86_64.whl"
 	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/bin/wrapper"
 		pip3 install "${CMAKE_CURRENT_BINARY_DIR}/TensorRT-5.1.5.0/python/graphsurgeon-0.4.1-py2.py3-none-any.whl"
