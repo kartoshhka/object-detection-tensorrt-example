@@ -139,13 +139,6 @@ def model_to_uff(model_path, output_uff_path, silent=False):
 
     """
 
-    # Load our plugins
-    library_path = os.path.join(os.path.dirname(__file__), '../libnvinfer_plugin.so')
-    plugins = ctypes.CDLL(library_path)
-    plugins.initLibNvInferPlugins.restype = None
-    plugins.initLibNvInferPlugins.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
-    plugins.initLibNvInferPlugins(ctypes.c_void_p(0), b'') #trt.Logger(trt.Logger.INFO)), '')
-
     dynamic_graph = gs.DynamicGraph(model_path)
     dynamic_graph = ssd_unsupported_nodes_to_plugin_nodes(dynamic_graph)
 

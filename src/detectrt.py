@@ -162,6 +162,13 @@ def main():
     if not os.path.exists(args.calib_dataset):
         raise IOError('Calibrarion dataset does not exist: %s' % args.calib_dataset)
 
+    # Load our plugins
+    library_path = os.path.join(os.path.dirname(__file__), 'libnvinfer_plugin.so')
+    plugins = ctypes.CDLL(library_path)
+    plugins.initLibNvInferPlugins.restype = None
+    plugins.initLibNvInferPlugins.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
+    plugins.initLibNvInferPlugins(ctypes.c_void_p(0), b'') #trt.Logger(trt.Logger.INFO)), '')
+
     # Fetch .uff model path, convert from .pb
     # if needed, using prepare_ssd_model
     ssd_model_uff_path = PATHS.get_model_uff_path(MODEL_NAME)
