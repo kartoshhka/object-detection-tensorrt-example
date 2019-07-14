@@ -88,10 +88,6 @@ class TRTInference(object):
                 should be optimized for
         """
 
-        # We first load all custom plugins shipped with TensorRT,
-        # some of them will be needed during inference
-        trt.init_libnvinfer_plugins(TRT_LOGGER, '')
-
         # Initialize runtime needed for loading TensorRT engine from file
         self.trt_runtime = trt.Runtime(TRT_LOGGER)
         # TRT engine placeholder

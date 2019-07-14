@@ -47,6 +47,8 @@ endforeach(PLUGIN_ITER)
 # Add common
 add_subdirectory(common)
 
+list(APPEND PLUGIN_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/InferPlugin.cpp")
+
 ################################## SHARED LIBRARY #######################################
 
 cuda_add_library(${SHARED_TARGET} SHARED
@@ -71,6 +73,8 @@ set_target_properties(${SHARED_TARGET} PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
+
+set_target_properties(${SHARED_TARGET} PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL -Wl,--version-script=${PLUGIN_EXPORT_MAP}")
 
 set_property(TARGET ${SHARED_TARGET} PROPERTY CUDA_STANDARD 11)
 

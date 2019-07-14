@@ -2,6 +2,8 @@
 import os
 import sys
 import tarfile
+import ctypes
+import wget
 
 import requests
 import tensorflow as tf
@@ -136,6 +138,14 @@ def model_to_uff(model_path, output_uff_path, silent=False):
         silent (bool): if True, writes progress messages to stdout
 
     """
+
+    # Load our plugins
+    library_path = os.path.join(os.path.dirname(__file__), '../libnvinfer_plugin.so')
+    plugins = ctypes.CDLL(library_path)
+    plugins.initLibNvInferPlugins.restype = None
+    plugins.initLibNvInferPlugins.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
+    plugins.initLibNvInferPlugins(ctypes.c_void_p(0), b'') #trt.Logger(trt.Logger.INFO)), '')
+
     dynamic_graph = gs.DynamicGraph(model_path)
     dynamic_graph = ssd_unsupported_nodes_to_plugin_nodes(dynamic_graph)
 
@@ -168,35 +178,6 @@ def maybe_mkdir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-def download_file(file_url, file_dest_path, silent=False):
-    """Downloads file from supplied URL and puts it into supplied directory.
-
-    Args:
-        file_url (str): URL with file to download
-        file_dest_path (str): path to save downloaded file in
-        silent (bool): if True, writes progress messages to stdout
-    """
-    with open(file_dest_path, "wb") as f:
-        maybe_print(not silent, "Downloading {}".format(file_dest_path))
-        response = requests.get(file_url, stream=True)
-        total_length = response.headers.get('content-length')
-
-        if total_length is None or silent: # no content length header or silent, just write file
-            f.write(response.content)
-        else: # not silent, print progress
-            dl = 0
-            total_length = int(total_length)
-            for data in response.iter_content(chunk_size=4096):
-                dl += len(data)
-                f.write(data)
-                done = int(50 * dl / total_length)
-                sys.stdout.write(
-                    "\rDownload progress [{}{}] {}%".format(
-                        '=' * done, ' ' * (50-done),
-                        int(100 * dl / total_length)))
-                sys.stdout.flush()
-            sys.stdout.write("\n")
-            sys.stdout.flush()
 
 def download_model(model_name, silent=False):
     """Downloads model_name from Tensorflow model zoo.
@@ -209,14 +190,14 @@ def download_model(model_name, silent=False):
     model_dir = PATHS.get_models_dir_path()
     maybe_mkdir(model_dir)
     model_url = PATHS.get_model_url(model_name)
-    model_archive_path = os.path.join(model_dir, "{}.tar.gz".format(model_name))
-    download_file(model_url, model_archive_path, silent)
+    model_archive_path = "{}.tar.gz".format(model_name)
+    if not os.path.exists(model_archive_path):
+        wget.download(model_url)
+        print("\n")
     maybe_print(not silent, "Download complete\nUnpacking {}".format(model_archive_path))
     with tarfile.open(model_archive_path, "r:gz") as tar:
         tar.extractall(path=model_dir)
-    maybe_print(not silent, "Extracting complete\nRemoving {}".format(model_archive_path))
-    os.remove(model_archive_path)
-    maybe_print(not silent, "Model ready")
+    maybe_print(not silent, "Extracting complete\nModel ready")
 
 def prepare_ssd_model(model_name="ssd_inception_v2_coco_2017_11_17", silent=False):
     """Downloads pretrained object detection model and converts it to UFF.

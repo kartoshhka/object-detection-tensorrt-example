@@ -155,6 +155,7 @@ def main():
         if not os.path.exists(args.calib_dataset):
             print ('Downloading calibration dataset %s' % args.calib_dataset)
             wget.download(VOC_DEVKIT_URL + VOC_DEVKIT_PACK)
+            print('\n')
             tar = tarfile.open(VOC_DEVKIT_PACK)
             tar.extractall()
 
