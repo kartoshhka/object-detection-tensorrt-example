@@ -23,12 +23,12 @@ sudo apt-get install cmake python3 python3-pip python3-venv
 Ниже приведены команды для клонирования репозитория и сборки:
 
 ```
-git clone --recursive git@github.com:dmikushin/detectrt.git
-cd detectrt
+git clone --recursive https://github.com/kartoshhka/object-detection-tensorrt-example.git
+cd object-detection-tensorrt-example
 mkdir build
 cd build
 cmake ..
-make -j4
+make -j$(nproc --all)
 ```
 
 ## Запуск приложения
